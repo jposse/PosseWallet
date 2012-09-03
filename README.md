@@ -34,5 +34,6 @@ How to build / use?
 Contributions / Code:
 =====================
 
-    Yes, please get involved to help code. If you want to donate please send to: 1KxMVQXDRCzRh9EdecdyjrpNgZZbaMRkYq (even .10 BTC helps)
+    Yes, please get involved to help code. If you want to donate please send to: 1KxMVQXDRCzRh9EdecdyjrpNgZZbaMRkYq 
+    (even a contribution of just .10 BTC helps)
 
