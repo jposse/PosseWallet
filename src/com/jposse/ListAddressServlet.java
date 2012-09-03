@@ -15,16 +15,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author jposse
  */
-public class GetAddressServlet extends HttpServlet {
+public class ListAddressServlet extends HttpServlet {
     
-    public static final org.slf4j.Logger log = LoggerFactory.getLogger("com.jposse.GetAddressServlet");
+    public static final org.slf4j.Logger log = LoggerFactory.getLogger("com.jposse.ListAddressServlet");
         
         @Override
         protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            log.info("Jetty called getAddress");
+            log.info("Jetty called listAddresses");
             response.setContentType("application/json");
-            String json = new Gson().toJson(WalletService.getAddress());
+            String json = new Gson().toJson(WalletService.listAddresses());
             response.getWriter().write(json);
         }
 }
-    

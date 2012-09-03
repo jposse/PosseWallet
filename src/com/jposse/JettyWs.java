@@ -24,6 +24,7 @@ public class JettyWs extends Thread {
         server.setHandler(context);
         log.info("Registering Servlets");
         context.addServlet(new ServletHolder(new GetAddressServlet()),"/getAddress");
+        context.addServlet(new ServletHolder(new ListAddressServlet()), "/listAddresses");
     }
     
     @Override

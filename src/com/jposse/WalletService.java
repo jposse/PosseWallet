@@ -18,6 +18,7 @@ import com.google.bitcoin.store.DiskBlockStore;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -121,6 +122,16 @@ public class WalletService {
             log.error(ex.getMessage());
         }
     }
+    
+    static ArrayList<String> listAddresses() {
+        log.debug("Listing all Addresses");
+        ArrayList<String> retval = new ArrayList<String>();
+        for (ECKey key: wallet.getKeys()) {
+            retval.add(key.toAddress(params).toString());
+        }
+        return retval;
+    }
+    
     static String getAddress() { 
         log.debug("Generating new Address");
         if (params==null) {
