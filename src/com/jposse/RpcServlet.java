@@ -6,6 +6,7 @@ package com.jposse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,7 +26,7 @@ class JsonReq {
 
 class JsonResp {
     String id;
-    String result;
+    Object result;
     String error;
 }
 
@@ -53,7 +54,7 @@ public class RpcServlet extends HttpServlet {
                 response.getWriter().write(gson.toJson(jresp));
             } else if (jreq.method.equalsIgnoreCase("listaddresses")) {
                 JsonResp jresp = new JsonResp();
-                jresp.result = gson.toJson(WalletService.listAddresses());
+                jresp.result = WalletService.listAddresses();
                 jresp.id = jreq.id;
                 log.info("listaddresses returning via HttpServletResponse: {}", gson.toJson(jresp));
                 response.getWriter().write(gson.toJson(jresp));
