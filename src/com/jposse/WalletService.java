@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author barry
+ * @author jposse
  */
 public class WalletService {
     public static File walletFile = null;
