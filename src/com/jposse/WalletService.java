@@ -142,4 +142,20 @@ public class WalletService {
         saveWallet();
         return newkey.toAddress(params).toString();
     }
+    void gracefulShutdown() {
+        try {
+            System.out.println("Graceful Shutdown Called");
+            if (Main.dloading) {                
+                log.info("Graceful Shutdown Called - skipped stopping peerGroup");
+                wallet.saveToFile(walletFile);
+            } else {
+                log.info("Graceful Shutdown Called - stopping peerGroup");
+                peerGroup.stop();
+                System.out.println("wha1");
+                wallet.saveToFile(walletFile);
+            }
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
+        }
+    }
 }

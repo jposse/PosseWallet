@@ -14,13 +14,15 @@ import org.slf4j.LoggerFactory;
 public class Main {
     
     public static final Logger log = LoggerFactory.getLogger("com.jposse.Main");
+    public static WalletService ws = null;
+    public static JettyWs jws = null;
+    public static boolean dloading = false;
     
     
     public static void main(String[] args) {
         log.info("Starting PosseWallet");
         
         log.info("Starting Jetty");
-        JettyWs jws = null;
         try {
             //Start Jetty
             jws = new JettyWs(8333);
@@ -32,9 +34,21 @@ public class Main {
         
         //WalletService(prodNetwork, DiscoveryType, BlockChainFile, WalletFile)
         log.info("Starting WalletService");
-        WalletService ws = new WalletService(1, "dns", "posse.blockchain", "posse.wallet");
+        ws = new WalletService(1, "dns", "posse.blockchain", "posse.wallet");
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            //Can't graceful shutdown during download...so either kill quick or soft depending on state
+            @Override
+            public void run() {
+                    jws.stopJetty();
+                    ws.gracefulShutdown();
+            }
+        });
         ws.startDiscovery();
+        log.info("Discovery Started");
+        dloading = true;
         ws.startDownload();
+        dloading = false;
         log.info("Finished downloading blockchain.");
     }
 }
