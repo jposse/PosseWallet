@@ -21,13 +21,20 @@ class JsonReq {
     String[] params;
     String id;
     String method;
+    String jsonrpc;
 }
 
 
 class JsonResp {
     String id;
     Object result;
-    String error;
+    JsonErr error;
+    String jsonrpc;
+}
+
+class JsonErr {
+    int code; 
+    String message;
 }
 
 public class RpcServlet extends HttpServlet {
@@ -50,20 +57,27 @@ public class RpcServlet extends HttpServlet {
                 jresp.result = WalletService.getAddress();
                 jresp.id = jreq.id;
                 jresp.error=null;
+                jresp.jsonrpc = jreq.jsonrpc;
                 log.info("getaddress returning via HttpServletResponse: {}", gson.toJson(jresp));
                 response.getWriter().write(gson.toJson(jresp));
             } else if (jreq.method.equalsIgnoreCase("listaddresses")) {
                 JsonResp jresp = new JsonResp();
                 jresp.result = WalletService.listAddresses();
                 jresp.id = jreq.id;
+                jresp.jsonrpc = jreq.jsonrpc;
                 log.info("listaddresses returning via HttpServletResponse: {}", gson.toJson(jresp));
                 response.getWriter().write(gson.toJson(jresp));
             } else {
-                log.info("Unknown method called: {}", jreq.method);
+                log.error("Unknown method called: {}", jreq.method);
                 JsonResp jresp = new JsonResp();
                 jresp.id = jreq.id;
                 jresp.result = "";
-                jresp.error = "Unknown Method";
+                JsonErr jerr = new JsonErr();
+                jerr.code=1;
+                jerr.message = "Unknown Method: "+jreq.method;
+                jresp.error = jerr;
+                jresp.jsonrpc = jreq.jsonrpc;
+                log.info("Returning via HttpServletResponse: {}", gson.toJson(jresp));
                 response.getWriter().write(gson.toJson(jresp));
             }
         }
