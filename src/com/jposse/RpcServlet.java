@@ -52,33 +52,31 @@ public class RpcServlet extends HttpServlet {
             }
             log.debug("HttpServletRequest is {}", sb.toString());
             JsonReq jreq = gson.fromJson(sb.toString(), JsonReq.class);
+            JsonResp jresp = new JsonResp();
             if (jreq.method.equalsIgnoreCase("getaddress")) {
-                JsonResp jresp = new JsonResp();
                 jresp.result = WalletService.getAddress();
                 jresp.id = jreq.id;
                 jresp.error=null;
                 jresp.jsonrpc = jreq.jsonrpc;
-                log.info("getaddress returning via HttpServletResponse: {}", gson.toJson(jresp));
-                response.getWriter().write(gson.toJson(jresp));
             } else if (jreq.method.equalsIgnoreCase("listaddresses")) {
-                JsonResp jresp = new JsonResp();
                 jresp.result = WalletService.listAddresses();
                 jresp.id = jreq.id;
                 jresp.jsonrpc = jreq.jsonrpc;
-                log.info("listaddresses returning via HttpServletResponse: {}", gson.toJson(jresp));
-                response.getWriter().write(gson.toJson(jresp));
+            } else if (jreq.method.equalsIgnoreCase("getbalance")) {
+                jresp.result = WalletService.getBalance();
+                jresp.id = jreq.id;
+                jresp.jsonrpc = jreq.jsonrpc;
             } else {
                 log.error("Unknown method called: {}", jreq.method);
-                JsonResp jresp = new JsonResp();
                 jresp.id = jreq.id;
                 jresp.result = "";
                 JsonErr jerr = new JsonErr();
                 jerr.code=1;
                 jerr.message = "Unknown Method: "+jreq.method;
                 jresp.error = jerr;
-                jresp.jsonrpc = jreq.jsonrpc;
-                log.info("Returning via HttpServletResponse: {}", gson.toJson(jresp));
-                response.getWriter().write(gson.toJson(jresp));
+                jresp.jsonrpc = jreq.jsonrpc;     
             }
+            log.info("{} returning via HttpServletResponse: {}", jreq.method, gson.toJson(jresp));
+            response.getWriter().write(gson.toJson(jresp));
         }
 }

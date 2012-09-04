@@ -10,6 +10,7 @@ import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.core.NetworkParameters;
 import com.google.bitcoin.core.PeerGroup;
 import com.google.bitcoin.core.Transaction;
+import com.google.bitcoin.core.Utils;
 import com.google.bitcoin.core.Wallet;
 import com.google.bitcoin.discovery.DnsDiscovery;
 import com.google.bitcoin.discovery.IrcDiscovery;
@@ -121,6 +122,10 @@ public class WalletService {
         } catch (IOException ex) {
             log.error(ex.getMessage());
         }
+    }
+    static String getBalance() {
+        return Utils.bitcoinValueToFriendlyString(wallet.getBalance());
+        
     }
     
     static ArrayList<String> listAddresses() {
