@@ -26,6 +26,7 @@ public class JettyWs extends Thread {
         context.addServlet(new ServletHolder(new GetAddressServlet()),"/getAddress");
         context.addServlet(new ServletHolder(new ListAddressServlet()), "/listAddresses");
         context.addServlet(new ServletHolder(new GetBalanceServlet()), "/getBalance");
+        context.addServlet(new ServletHolder(new ListTransServlet()), "/listTransactions");
         context.addServlet(new ServletHolder(new RpcServlet()), "/rpc");
     }
     

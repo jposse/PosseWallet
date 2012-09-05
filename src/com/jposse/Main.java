@@ -32,8 +32,9 @@ public class Main {
         jws.start();
         log.info("Jetty Started");
         
-        //WalletService(prodNetwork, DiscoveryType, BlockChainFile, WalletFile)
+        
         log.info("Starting WalletService");
+        //WalletService(prodNetwork, DiscoveryType, BlockChainFile, WalletFile)
         ws = new WalletService(1, "dns", "posse.blockchain", "posse.wallet");
         
         Runtime.getRuntime().addShutdownHook(new Thread() {

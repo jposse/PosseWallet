@@ -6,7 +6,6 @@ package com.jposse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,28 +52,23 @@ public class RpcServlet extends HttpServlet {
             log.debug("HttpServletRequest is {}", sb.toString());
             JsonReq jreq = gson.fromJson(sb.toString(), JsonReq.class);
             JsonResp jresp = new JsonResp();
+            jresp.id = jreq.id;
+            jresp.jsonrpc = jreq.jsonrpc;
             if (jreq.method.equalsIgnoreCase("getaddress")) {
                 jresp.result = WalletService.getAddress();
-                jresp.id = jreq.id;
-                jresp.error=null;
-                jresp.jsonrpc = jreq.jsonrpc;
             } else if (jreq.method.equalsIgnoreCase("listaddresses")) {
                 jresp.result = WalletService.listAddresses();
-                jresp.id = jreq.id;
-                jresp.jsonrpc = jreq.jsonrpc;
             } else if (jreq.method.equalsIgnoreCase("getbalance")) {
                 jresp.result = WalletService.getBalance();
-                jresp.id = jreq.id;
-                jresp.jsonrpc = jreq.jsonrpc;
+            } else if (jreq.method.equalsIgnoreCase("listtransactions")) {
+                jresp.result = WalletService.listTransactions();
             } else {
                 log.error("Unknown method called: {}", jreq.method);
-                jresp.id = jreq.id;
                 jresp.result = "";
                 JsonErr jerr = new JsonErr();
                 jerr.code=1;
                 jerr.message = "Unknown Method: "+jreq.method;
-                jresp.error = jerr;
-                jresp.jsonrpc = jreq.jsonrpc;     
+                jresp.error = jerr;  
             }
             log.info("{} returning via HttpServletResponse: {}", jreq.method, gson.toJson(jresp));
             response.getWriter().write(gson.toJson(jresp));

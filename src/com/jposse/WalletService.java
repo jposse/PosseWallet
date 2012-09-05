@@ -38,16 +38,19 @@ public class WalletService {
     public static PeerGroup peerGroup;
     public static final org.slf4j.Logger log = LoggerFactory.getLogger("com.jposse.WalletService");
     
-    public WalletService(int networkType, String discoveryType, String blockFileName, String walletFileName) {
+    public WalletService(int productionNet, String discoveryType, String blockFileName, String walletFileName) {
         
-        if (networkType==0) {
-            params = NetworkParameters.testNet();
-        } else {
+        String ircName;
+        if (productionNet==1) {
             params = NetworkParameters.prodNet();
+            ircName = "#bitcoin";
+        } else {
+            params = NetworkParameters.testNet();
+            ircName = "#bitcoinTest";
         }
         
         if (discoveryType.equalsIgnoreCase("irc")) {
-            discovery = new IrcDiscovery("#bitcoin");
+            discovery = new IrcDiscovery(ircName);
         } else if (discoveryType.equalsIgnoreCase("dns")) {
             discovery = new DnsDiscovery(params);
         }
@@ -104,6 +107,13 @@ public class WalletService {
         });
     }
    
+    static ArrayList<String> listTransactions() {
+        ArrayList<String> retlst = new ArrayList<String>();
+        for (Transaction t: wallet.getTransactionsByTime()) {
+            retlst.add(t.toString());
+        }
+        return retlst;
+    }
     
     public void startDiscovery() {
         log.info("Starting Discovery");
@@ -126,7 +136,10 @@ public class WalletService {
     static String getBalance() {
         return Utils.bitcoinValueToFriendlyString(wallet.getBalance());
         
+        
     }
+    
+    
     
     static ArrayList<String> listAddresses() {
         log.debug("Listing all Addresses");
