@@ -8,6 +8,7 @@ import com.google.bitcoin.core.AbstractWalletEventListener;
 import com.google.bitcoin.core.BlockChain;
 import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.core.NetworkParameters;
+import com.google.bitcoin.core.PeerAddress;
 import com.google.bitcoin.core.PeerGroup;
 import com.google.bitcoin.core.Transaction;
 import com.google.bitcoin.core.Utils;
@@ -19,6 +20,8 @@ import com.google.bitcoin.store.DiskBlockStore;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +45,11 @@ public class WalletService {
         
         String ircName;
         if (productionNet==1) {
+            log.info("Starting Production Network");
             params = NetworkParameters.prodNet();
             ircName = "#bitcoin";
         } else {
+            log.info("Starting Test Network");
             params = NetworkParameters.testNet();
             ircName = "#bitcoinTest";
         }
@@ -77,6 +82,8 @@ public class WalletService {
             blockStore = new DiskBlockStore(params, blockFile);
             blockChain = new BlockChain(params, wallet, blockStore);
         } catch (Exception e) {
+            log.info("Clearing transactions from wallet becuase no blockchain found?");
+            wallet.clearTransactions(0);
             log.error(e.getMessage());
         }
         
@@ -84,15 +91,28 @@ public class WalletService {
         log.info("Starting peers");
         peerGroup = new PeerGroup(params, blockChain);
         peerGroup.setUserAgent("PosseWallet", "0.1");
+        if (productionNet==0) {
+            log.info("Adding hardcoded testnet sites");
+            try {
+                peerGroup.addAddress(new PeerAddress(InetAddress.getByName("blockexplorer.com"), 18333));
+                //peerGroup.addAddress(new PeerAddress(InetAddress.getByName("localhost"), 18333));
+            } catch (UnknownHostException ex) {
+                log.error(ex.getMessage());
+            }
+        } else {
+            log.info("On production net, so adding auto-discovery");
+            peerGroup.addPeerDiscovery(discovery);
+        }
+        
         peerGroup.addWallet(wallet);
         peerGroup.setFastCatchupTimeSecs(wallet.getEarliestKeyCreationTime());
-        peerGroup.addPeerDiscovery(discovery);
-        
+          
         wallet.addEventListener(new AbstractWalletEventListener() {
             @Override
             public void onCoinsReceived(Wallet wallet, Transaction tx, BigInteger prevBalance, BigInteger newBalance) {
                 super.onCoinsReceived(wallet, tx, prevBalance, newBalance);
-                //TODO: Handle new transaction code here
+                System.out.println("TX RECVD: Confidence: "+tx.getConfidence().toString());
+                        
             }
             
             @Override
@@ -110,7 +130,7 @@ public class WalletService {
     static ArrayList<String> listTransactions() {
         ArrayList<String> retlst = new ArrayList<String>();
         for (Transaction t: wallet.getTransactionsByTime()) {
-            retlst.add(t.toString());
+            retlst.add("Transaction: "+t.getHashAsString()+" Confidence: "+t.getConfidence());
         }
         return retlst;
     }
@@ -133,13 +153,10 @@ public class WalletService {
             log.error(ex.getMessage());
         }
     }
-    static String getBalance() {
-        return Utils.bitcoinValueToFriendlyString(wallet.getBalance());
-        
-        
+    
+    static BigInteger getBalance() {
+        return wallet.getBalance();
     }
-    
-    
     
     static ArrayList<String> listAddresses() {
         log.debug("Listing all Addresses");
