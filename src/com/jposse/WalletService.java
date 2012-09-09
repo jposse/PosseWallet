@@ -11,12 +11,11 @@ import com.google.bitcoin.core.NetworkParameters;
 import com.google.bitcoin.core.PeerAddress;
 import com.google.bitcoin.core.PeerGroup;
 import com.google.bitcoin.core.Transaction;
-import com.google.bitcoin.core.Utils;
 import com.google.bitcoin.core.Wallet;
 import com.google.bitcoin.discovery.DnsDiscovery;
 import com.google.bitcoin.discovery.IrcDiscovery;
 import com.google.bitcoin.discovery.PeerDiscovery;
-import com.google.bitcoin.store.DiskBlockStore;
+import com.google.bitcoin.store.BoundedOverheadBlockStore;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -35,7 +34,7 @@ public class WalletService {
     public static ECKey eckey;
     public static NetworkParameters params = null;
     public static File blockFile;
-    public static DiskBlockStore blockStore;
+    public static BoundedOverheadBlockStore blockStore;
     public static BlockChain blockChain;
     public static PeerDiscovery discovery;
     public static PeerGroup peerGroup;
@@ -79,11 +78,13 @@ public class WalletService {
         //Setup blockchain to disk
         try {
             blockFile = new File(blockFileName);
-            blockStore = new DiskBlockStore(params, blockFile);
+            if (!blockFile.exists()) {
+                log.info("Clearing transactions from wallet becuase no blockchain found?");
+                wallet.clearTransactions(0);
+            }
+            blockStore = new BoundedOverheadBlockStore(params, blockFile);
             blockChain = new BlockChain(params, wallet, blockStore);
         } catch (Exception e) {
-            log.info("Clearing transactions from wallet becuase no blockchain found?");
-            wallet.clearTransactions(0);
             log.error(e.getMessage());
         }
         
